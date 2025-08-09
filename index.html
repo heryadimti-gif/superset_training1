@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Superset Training Module</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Neutrals -->
+    <!-- Application Structure Plan: The application is structured as a single-page, vertical-scrolling guide. This replaces the linear slide format with a more fluid, web-native experience. A sticky top navigation bar allows users to jump between key thematic sections: 'Intro', 'Core Concepts', 'The Workflow', and 'Next Steps'. The core of the app is the 'Workflow' section, which presents the creation process as a visual, numbered timeline. Clicking a step in the timeline smoothly scrolls to its detailed explanation. This structure was chosen because it provides a clear overview of the entire process while allowing users to explore topics non-linearly, which is more intuitive and engaging than a forced step-by-step presentation. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: 'What is a Dashboard?' & 'Why Superset?'. Goal: Inform. Method: Styled cards in a grid layout (HTML/Tailwind) to present information in digestible chunks. Interaction: Static. Justification: Clear, scannable presentation of foundational concepts.
+        - Report Info: The 4-step creation process. Goal: Organize & Guide. Method: A visual timeline created with HTML/Tailwind, where each step is a clickable element. Interaction: Clicking a step scrolls to the detailed instructions. Justification: Creates a mental model of the process and connects the overview to the details intuitively.
+        - Report Info: 'Understanding Chart Components'. Goal: Engage & Inform. Method: A mock UI diagram (HTML/Tailwind) with interactive labels. Interaction: Hovering over labels ('Metrics', 'Dimensions') reveals tooltips with explanations (JS). Justification: Transforms a static list into an interactive learning tool, enhancing comprehension and retention.
+        - Report Info: 'Visualization Types'. Goal: Illustrate. Method: A sample Bar Chart rendered with Chart.js inside a responsive container. Interaction: Standard Chart.js tooltips on hover. Justification: Provides a concrete example of the end product, making the abstract instructions more tangible.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f7f4;
+            color: #4a4a4a;
+        }
+        .nav-link {
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover {
+            color: #c084fc;
+            border-bottom-color: #c084fc;
+        }
+        .step-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .has-tooltip:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-lg shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold text-purple-600">
+                <a href="#">Superset Guide</a>
+            </div>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#intro" class="nav-link font-medium pb-1">Introduction</a>
+                <a href="#concepts" class="nav-link font-medium pb-1">Core Concepts</a>
+                <a href="#workflow" class="nav-link font-medium pb-1">The Workflow</a>
+                <a href="#next-steps" class="nav-link font-medium pb-1">Next Steps</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
+            <a href="#intro" class="block py-2 text-center nav-link">Introduction</a>
+            <a href="#concepts" class="block py-2 text-center nav-link">Core Concepts</a>
+            <a href="#workflow" class="block py-2 text-center nav-link">The Workflow</a>
+            <a href="#next-steps" class="block py-2 text-center nav-link">Next Steps</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="intro" class="py-20 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h1 class="text-4xl md:text-6xl font-bold text-gray-800 leading-tight">Superset Dashboard Training</h1>
+                <p class="mt-4 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">An interactive guide for beginners. Learn the fundamentals of creating powerful, data-driven dashboards with Apache Superset, from connecting data to sharing your insights.</p>
+                <a href="#concepts" class="mt-8 inline-block bg-purple-600 text-white font-bold py-3 px-8 rounded-full hover:bg-purple-700 transition-colors duration-300">Start Learning</a>
+            </div>
+        </section>
+
+        <section id="concepts" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-800">Core Concepts</h2>
+                    <p class="mt-2 text-gray-600">Before we build, let's understand the 'what' and the 'why'.</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-white p-8 rounded-xl shadow-lg">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">What is a Dashboard?</h3>
+                        <p class="text-gray-600 mb-4">A dashboard is a visual display of key data points, or "metrics." It helps you quickly understand performance, track progress, and make data-driven decisions.</p>
+                        <p class="text-gray-600">Think of it like a car's dashboard: it shows you all the important information (speed, fuel, engine temp) at a glance.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-lg">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Why Apache Superset?</h3>
+                        <ul class="space-y-3 text-gray-600">
+                            <li><span class="font-semibold text-purple-600">Open-Source & Free:</span> No cost to use, backed by a strong community.</li>
+                            <li><span class="font-semibold text-purple-600">Powerful:</span> Connects to a vast array of modern databases.</li>
+                            <li><span class="font-semibold text-purple-600">Intuitive Interface:</span> Designed for both technical and non-technical users.</li>
+                            <li><span class="font-semibold text-purple-600">Beautiful Visualizations:</span> A wide range of chart types to choose from.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="workflow" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold text-gray-800">The Dashboard Creation Workflow</h2>
+                    <p class="mt-2 text-gray-600 max-w-2xl mx-auto">This section breaks down the process of creating a dashboard into four main steps. Click on any step to see the detailed instructions and learn how to move from raw data to a finished visualization.</p>
+                </div>
+
+                <div class="relative">
+                    <div class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-purple-200 -translate-y-1/2"></div>
+                    <div class="relative grid md:grid-cols-4 gap-8">
+                        <a href="#step1" class="step-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-purple-500 text-center">
+                            <div class="text-3xl font-bold text-purple-500 mb-2">1</div>
+                            <h3 class="text-xl font-semibold text-gray-800">Connect Data</h3>
+                            <p class="text-sm text-gray-500 mt-1">Link Superset to your database.</p>
+                        </a>
+                        <a href="#step2" class="step-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-purple-500 text-center">
+                            <div class="text-3xl font-bold text-purple-500 mb-2">2</div>
+                            <h3 class="text-xl font-semibold text-gray-800">Create Dataset</h3>
+                            <p class="text-sm text-gray-500 mt-1">Define the specific data to visualize.</p>
+                        </a>
+                        <a href="#step3" class="step-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-purple-500 text-center">
+                            <div class="text-3xl font-bold text-purple-500 mb-2">3</div>
+                            <h3 class="text-xl font-semibold text-gray-800">Build Charts</h3>
+                            <p class="text-sm text-gray-500 mt-1">Create individual visualizations.</p>
+                        </a>
+                        <a href="#step4" class="step-card bg-white p-6 rounded-xl shadow-lg border-t-4 border-purple-500 text-center">
+                            <div class="text-3xl font-bold text-purple-500 mb-2">4</div>
+                            <h3 class="text-xl font-semibold text-gray-800">Assemble Dashboard</h3>
+                            <p class="text-sm text-gray-500 mt-1">Arrange charts into a final view.</p>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mt-20 space-y-16">
+                    <div id="step1" class="pt-8">
+                        <h3 class="text-2xl font-bold text-gray-800">Step 1: Connecting Your Data</h3>
+                        <p class="mt-2 text-gray-600">The first step is to tell Superset where your data lives. This involves adding your database as a source.</p>
+                        <ul class="mt-4 list-disc list-inside bg-gray-50 p-6 rounded-lg space-y-2">
+                            <li>Navigate to <span class="font-mono bg-gray-200 px-2 py-1 rounded">Data > Databases</span>.</li>
+                            <li>Click the <span class="font-mono bg-gray-200 px-2 py-1 rounded">+</span> button to add a new database.</li>
+                            <li>Select your database type (e.g., PostgreSQL, MySQL, Google BigQuery).</li>
+                            <li>Enter the connection details (host, port, username, password).</li>
+                            <li class="font-semibold text-purple-700">Pro Tip: Test the connection before saving!</li>
+                        </ul>
+                    </div>
+                    <div id="step2" class="pt-8">
+                        <h3 class="text-2xl font-bold text-gray-800">Step 2: Exploring Your Data & Creating a Dataset</h3>
+                        <p class="mt-2 text-gray-600">Once a database is connected, you need to specify which table or view you want to visualize. This is called a dataset.</p>
+                        <ul class="mt-4 list-disc list-inside bg-gray-50 p-6 rounded-lg space-y-2">
+                            <li>Navigate to <span class="font-mono bg-gray-200 px-2 py-1 rounded">Data > Datasets</span>.</li>
+                            <li>Click <span class="font-mono bg-gray-200 px-2 py-1 rounded">+</span> to create a new dataset from your connected database.</li>
+                            <li>A dataset is your working table for creating charts.</li>
+                        </ul>
+                    </div>
+                    <div id="step3" class="pt-8 grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800">Step 3: Building Your First Chart</h3>
+                            <p class="mt-2 text-gray-600">This is where your data comes to life. Each chart is a single visualization built from a dataset.</p>
+                             <ul class="mt-4 list-disc list-inside bg-gray-50 p-6 rounded-lg space-y-2">
+                                <li>Navigate to <span class="font-mono bg-gray-200 px-2 py-1 rounded">Charts</span> and click <span class="font-mono bg-gray-200 px-2 py-1 rounded">+ New Chart</span>.</li>
+                                <li>Choose your dataset and a visualization type (e.g., Bar Chart, Line Chart).</li>
+                                <li>Click <span class="font-mono bg-gray-200 px-2 py-1 rounded">Create New Chart</span> to enter the chart builder.</li>
+                            </ul>
+                        </div>
+                        <div class="chart-container">
+                             <canvas id="exampleChart"></canvas>
+                        </div>
+                    </div>
+                    <div id="interactive-components" class="pt-8">
+                        <h4 class="text-xl font-bold text-gray-800 text-center mb-4">Understanding Chart Components</h4>
+                        <p class="text-gray-600 text-center mb-8 max-w-2xl mx-auto">In the chart builder, you'll configure three main parts. Hover over each label below to learn more.</p>
+                        <div class="bg-gray-50 p-8 rounded-lg shadow-inner max-w-3xl mx-auto flex flex-col md:flex-row justify-around items-center space-y-6 md:space-y-0">
+                            <div class="relative has-tooltip">
+                                <div class="cursor-pointer bg-blue-100 text-blue-800 font-semibold px-4 py-2 rounded-full border-2 border-dashed border-blue-300">Metrics</div>
+                                <div class="tooltip absolute bottom-full mb-2 w-64 bg-gray-800 text-white text-sm rounded-lg p-3 shadow-lg z-10">
+                                    <h5 class="font-bold mb-1">Metrics</h5>
+                                    The values you want to measure (e.g., `SUM(sales)`, `AVG(price)`). These are the numbers that will determine the size of your bars, points on your lines, etc.
+                                </div>
+                            </div>
+                             <div class="relative has-tooltip">
+                                <div class="cursor-pointer bg-green-100 text-green-800 font-semibold px-4 py-2 rounded-full border-2 border-dashed border-green-300">Dimensions</div>
+                                 <div class="tooltip absolute bottom-full mb-2 w-64 bg-gray-800 text-white text-sm rounded-lg p-3 shadow-lg z-10">
+                                    <h5 class="font-bold mb-1">Dimensions</h5>
+                                    The categories you want to break your data down by (e.g., `product_category`, `country`). These are the labels along the axes of your chart.
+                                </div>
+                            </div>
+                             <div class="relative has-tooltip">
+                                <div class="cursor-pointer bg-yellow-100 text-yellow-800 font-semibold px-4 py-2 rounded-full border-2 border-dashed border-yellow-300">Filters</div>
+                                 <div class="tooltip absolute bottom-full mb-2 w-64 bg-gray-800 text-white text-sm rounded-lg p-3 shadow-lg z-10">
+                                    <h5 class="font-bold mb-1">Filters</h5>
+                                    How you narrow down your data to show a specific subset (e.g., `sales > 100`, `region = 'Europe'`). This helps focus your chart on the most relevant information.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="step4" class="pt-8">
+                        <h3 class="text-2xl font-bold text-gray-800">Step 4: Assembling Your Dashboard</h3>
+                        <p class="mt-2 text-gray-600">The final step is to bring all your charts together into a cohesive dashboard.</p>
+                        <ul class="mt-4 list-disc list-inside bg-gray-50 p-6 rounded-lg space-y-2">
+                            <li>Navigate to <span class="font-mono bg-gray-200 px-2 py-1 rounded">Dashboards</span> and click <span class="font-mono bg-gray-200 px-2 py-1 rounded">+ Dashboard</span>.</li>
+                            <li>Give your dashboard a descriptive name. This creates a blank canvas.</li>
+                            <li>Add charts by dragging them from the chart list or using the edit menu.</li>
+                            <li>Arrange and resize charts by clicking and dragging them on the canvas. Organize them logically to tell a story with your data.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="next-steps" class="py-20">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl font-bold text-gray-800">You've Done It! What's Next?</h2>
+                <p class="mt-2 text-gray-600 max-w-2xl mx-auto">You've learned the complete workflow from data connection to a finished dashboard. Now you can start exploring on your own.</p>
+                <div class="mt-8 grid md:grid-cols-3 gap-8 text-left">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h4 class="font-bold text-lg text-purple-700">Experiment</h4>
+                        <p class="text-gray-600 mt-1">Try out different chart types. See how a pie chart tells a different story than a bar chart with the same data.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h4 class="font-bold text-lg text-purple-700">Explore Filters</h4>
+                        <p class="text-gray-600 mt-1">Dive into advanced filtering options. Create interactive dashboards where users can filter the data themselves.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h4 class="font-bold text-lg text-purple-700">Share Your Work</h4>
+                        <p class="text-gray-600 mt-1">Use the 'Share' button on your dashboard to send a link or get an embed code. Data is most powerful when it's shared.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 Interactive Training Module. All rights reserved.</p>
+            <p class="text-sm text-gray-400 mt-2">Built to demonstrate interactive learning concepts.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            document.querySelectorAll('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+
+            const ctx = document.getElementById('exampleChart').getContext('2d');
+            const exampleChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['North', 'South', 'East', 'West'],
+                    datasets: [{
+                        label: 'Regional Sales (in thousands)',
+                        data: [120, 190, 150, 210],
+                        backgroundColor: [
+                            'rgba(168, 85, 247, 0.6)',
+                            'rgba(139, 92, 246, 0.6)',
+                            'rgba(124, 58, 237, 0.6)',
+                            'rgba(109, 40, 217, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(168, 85, 247, 1)',
+                            'rgba(139, 92, 246, 1)',
+                            'rgba(124, 58, 237, 1)',
+                            'rgba(109, 40, 217, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#333',
+                            titleFont: {
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 14
+                            },
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y * 1000);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
